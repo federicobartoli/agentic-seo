@@ -42,4 +42,20 @@ describe('llms-txt checker', () => {
     );
     assert.ok(positionWarning, 'Should warn that the H1 is not the first content in the file');
   });
+
+  it('should accept a setext H1 (Title\\n=====) as a valid H1', async () => {
+    const result = await check({ dir: join(FIXTURES, 'llms-setext'), projectDir: join(FIXTURES, 'llms-setext') });
+    const missingH1 = result.findings.find(
+      (f) => f.severity === 'error' && /missing the required H1/.test(f.message)
+    );
+    assert.equal(missingH1, undefined, 'Setext H1 should not trigger missing-H1 error');
+  });
+
+  it('should not flag H1 position when file starts with a UTF-8 BOM', async () => {
+    const result = await check({ dir: join(FIXTURES, 'llms-bom'), projectDir: join(FIXTURES, 'llms-bom') });
+    const positionWarning = result.findings.find(
+      (f) => f.severity === 'warning' && /not the first content/.test(f.message)
+    );
+    assert.equal(positionWarning, undefined, 'BOM prefix should not cause the position check to fail');
+  });
 });

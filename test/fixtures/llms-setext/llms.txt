@@ -1,0 +1,8 @@
+MyProject
+=========
+
+> A project using setext H1 syntax (title underlined with '=').
+
+## Section
+
+- [Guide](https://example.com/guide): Intro (~200 tokens)

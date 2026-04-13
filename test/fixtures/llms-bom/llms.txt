@@ -1,0 +1,7 @@
+﻿# BomProject
+
+> A project whose llms.txt starts with a UTF-8 BOM.
+
+## Section
+
+- [Guide](https://example.com/guide): Intro (~200 tokens)

@@ -12,16 +12,23 @@ const MAX_SCORE = 10;
  * The spec requires exactly one H1 and places it first in the ordered structure.
  */
 function validateH1(content) {
-  const safe = content || '';
+  // Strip an optional UTF-8 BOM that some editors prepend on save.
+  const safe = (content || '').replace(/^\uFEFF/, '');
   // For counting H1s, strip fenced code blocks so '# comment' lines inside
   // bash/etc. aren't matched.
   const stripped = safe.replace(/^([`~]{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '');
+  // Normalize setext H1 (`Title\n====`) to ATX (`# Title`) so the rest of the
+  // checks apply uniformly. Only H1 ('='), not setext H2 ('-').
+  const setextToAtx = (text) =>
+    text.replace(/^(?!\s*$)([^\n]+)\n[ ]{0,3}=+[ \t]*$/gm, '# $1');
+  const normStripped = setextToAtx(stripped);
+  const normSafe = setextToAtx(safe);
+
   // CommonMark allows up to 3 spaces of indentation before an ATX heading.
   const h1Regex = /^[ ]{0,3}#\s+\S.*$/gm;
-  const h1s = stripped.match(h1Regex) || [];
-  // For position, check the original content: a code block at the top still
-  // counts as content before the H1.
-  const firstNonBlank = safe.split('\n').find((l) => l.trim() !== '') || '';
+  const h1s = normStripped.match(h1Regex) || [];
+  // For position, check the original (BOM-stripped, setext-normalized) content.
+  const firstNonBlank = normSafe.split('\n').find((l) => l.trim() !== '') || '';
   const startsWithH1 = /^[ ]{0,3}#\s+\S/.test(firstNonBlank);
 
   if (h1s.length === 0) {
