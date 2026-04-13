@@ -1,0 +1,12 @@
+```bash
+# install
+npm install example
+```
+
+# ExampleDocs
+
+> A project whose llms.txt starts with a code block before the H1.
+
+## Getting Started
+
+- [Quickstart](https://example.com/quickstart): First steps (~500 tokens)

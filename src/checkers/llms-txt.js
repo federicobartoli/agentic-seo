@@ -13,11 +13,16 @@ const MAX_SCORE = 10;
  */
 function validateH1(content) {
   const safe = content || '';
-  // Strip fenced code blocks so '# comment' lines inside bash/etc. aren't counted as H1.
+  // For counting H1s, strip fenced code blocks so '# comment' lines inside
+  // bash/etc. aren't matched.
   const stripped = safe.replace(/^([`~]{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '');
-  const h1s = stripped.match(/^#\s+\S.*$/gm) || [];
-  const firstNonBlank = stripped.split('\n').find((l) => l.trim() !== '') || '';
-  const startsWithH1 = /^#\s+\S/.test(firstNonBlank);
+  // CommonMark allows up to 3 spaces of indentation before an ATX heading.
+  const h1Regex = /^[ ]{0,3}#\s+\S.*$/gm;
+  const h1s = stripped.match(h1Regex) || [];
+  // For position, check the original content: a code block at the top still
+  // counts as content before the H1.
+  const firstNonBlank = safe.split('\n').find((l) => l.trim() !== '') || '';
+  const startsWithH1 = /^[ ]{0,3}#\s+\S/.test(firstNonBlank);
 
   if (h1s.length === 0) {
     return finding('error', 'llms.txt is missing the required H1 heading.',
@@ -32,7 +37,7 @@ function validateH1(content) {
     return finding('warning', 'llms.txt H1 heading is not the first content in the file.',
       'Move the "# Project Name" heading to the top; the spec expects it before the blockquote summary and sections.');
   }
-  return finding('info', `H1 heading present: "${h1s[0].replace(/^#\s+/, '').trim()}".`);
+  return finding('info', `H1 heading present: "${h1s[0].replace(/^\s*#\s+/, '').trim()}".`);
 }
 
 /**

@@ -34,4 +34,12 @@ describe('llms-txt checker', () => {
     );
     assert.ok(h1Error, 'Should report a missing-H1 error finding');
   });
+
+  it('should warn when the H1 is not the first content (code block above it)', async () => {
+    const result = await check({ dir: join(FIXTURES, 'llms-h1-not-first'), projectDir: join(FIXTURES, 'llms-h1-not-first') });
+    const positionWarning = result.findings.find(
+      (f) => f.severity === 'warning' && /not the first content/.test(f.message)
+    );
+    assert.ok(positionWarning, 'Should warn that the H1 is not the first content in the file');
+  });
 });
