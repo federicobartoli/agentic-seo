@@ -15,10 +15,12 @@ Audits your `robots.txt` for AI agent accessibility.
 - AI crawlers explicitly allowed with `Allow: /` rules (+2)
 
 **Known AI crawlers checked:**
-- ClaudeBot, Claude-Web (Anthropic)
-- GPTBot, ChatGPT-User (OpenAI)
+- ClaudeBot, Claude-User, Claude-SearchBot, Claude-Web (Anthropic)
+- GPTBot, ChatGPT-User, OAI-SearchBot (OpenAI)
 - Google-Extended, GoogleOther (Google)
-- PerplexityBot (Perplexity)
+- Applebot-Extended (Apple)
+- Meta-ExternalAgent, Meta-ExternalFetcher (Meta)
+- PerplexityBot, Perplexity-User (Perplexity)
 - Amazonbot (Amazon)
 - cohere-ai (Cohere)
 - Bytespider (ByteDance)
