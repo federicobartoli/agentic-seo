@@ -8,6 +8,34 @@ const CATEGORY = 'discovery';
 const MAX_SCORE = 10;
 
 /**
+ * Validate the H1 heading against the llms.txt spec.
+ * The spec requires exactly one H1 and places it first in the ordered structure.
+ */
+function validateH1(content) {
+  const safe = content || '';
+  // Strip fenced code blocks so '# comment' lines inside bash/etc. aren't counted as H1.
+  const stripped = safe.replace(/^([`~]{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '');
+  const h1s = stripped.match(/^#\s+\S.*$/gm) || [];
+  const firstNonBlank = stripped.split('\n').find((l) => l.trim() !== '') || '';
+  const startsWithH1 = /^#\s+\S/.test(firstNonBlank);
+
+  if (h1s.length === 0) {
+    return finding('error', 'llms.txt is missing the required H1 heading.',
+      'Add a top-level heading with your project or site name as the first line:\n# My Project');
+  }
+  if (h1s.length > 1) {
+    return finding('warning',
+      `llms.txt contains ${h1s.length} H1 headings; the spec expects exactly one.`,
+      'Keep a single top-level "# Project Name" heading. Use H2 (##) for sections.');
+  }
+  if (!startsWithH1) {
+    return finding('warning', 'llms.txt H1 heading is not the first content in the file.',
+      'Move the "# Project Name" heading to the top; the spec expects it before the blockquote summary and sections.');
+  }
+  return finding('info', `H1 heading present: "${h1s[0].replace(/^#\s+/, '').trim()}".`);
+}
+
+/**
  * Check llms.txt exists and is well-formed.
  *
  * Scoring:
@@ -47,6 +75,10 @@ export async function check(context) {
   // File exists
   score += 3;
   findings.push(finding('info', `llms.txt found at ${foundPath}.`));
+
+  // Spec: single H1 with the project/site name, first in the ordered structure.
+  // https://llmstxt.org
+  findings.push(validateH1(content));
 
   // Check for structured links [title](url)
   const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;

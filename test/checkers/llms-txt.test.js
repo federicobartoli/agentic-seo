@@ -26,4 +26,12 @@ describe('llms-txt checker', () => {
     const withFix = result.findings.filter((f) => f.fix);
     assert.ok(withFix.length > 0, 'Should provide fix suggestions');
   });
+
+  it('should report an error when llms.txt has no H1 heading', async () => {
+    const result = await check({ dir: join(FIXTURES, 'llms-no-h1'), projectDir: join(FIXTURES, 'llms-no-h1') });
+    const h1Error = result.findings.find(
+      (f) => f.severity === 'error' && /H1/.test(f.message)
+    );
+    assert.ok(h1Error, 'Should report a missing-H1 error finding');
+  });
 });

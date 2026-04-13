@@ -1,0 +1,9 @@
+> A site with an llms.txt that has links and sections but no H1.
+
+## Getting Started
+
+- [Quickstart](https://example.com/quickstart): Get going in 5 minutes (~500 tokens)
+
+## API Reference
+
+- [Users API](https://example.com/api/users): CRUD for user accounts (~800 tokens)

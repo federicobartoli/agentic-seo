@@ -49,6 +49,8 @@ Checks for a well-formed `llms.txt` file, which serves as a structured index for
 - File itself is under 5,000 tokens (+1)
 - Organized with section headings (+1)
 
+Also validates that the file has exactly one H1 heading placed first, as required by the spec. Violations are reported as findings (missing H1 → error; multiple H1s or H1 not first → warning).
+
 **Specification:** https://llmstxt.org
 
 ---
