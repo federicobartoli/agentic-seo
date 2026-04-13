@@ -18,8 +18,7 @@
   },
   "files": [
     "bin/",
-    "src/",
-    "templates/"
+    "src/"
   ],
   "keywords": [
     "agentic-seo",
