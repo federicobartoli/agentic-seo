@@ -163,10 +163,15 @@ export const AI_AGENTS = {
 
 /**
  * Parse a simple robots.txt into structured rules.
+ *
+ * Handles multi-agent groups per RFC 9309 (§2.1, §2.2): consecutive User-agent
+ * lines before any rule share that block of rules; a User-agent line that
+ * follows a rule starts a new group.
  */
 export function parseRobotsTxt(content) {
   const rules = [];
-  let currentAgent = null;
+  let currentAgents = [];
+  let lastDirectiveWasRule = false;
 
   for (const line of content.split('\n')) {
     const trimmed = line.trim();
@@ -174,13 +179,24 @@ export function parseRobotsTxt(content) {
 
     const [directive, ...rest] = trimmed.split(':');
     const value = rest.join(':').trim();
+    const directiveLower = directive.toLowerCase();
 
-    if (directive.toLowerCase() === 'user-agent') {
-      currentAgent = value;
-    } else if (directive.toLowerCase() === 'disallow' && currentAgent) {
-      rules.push({ agent: currentAgent, disallow: value });
-    } else if (directive.toLowerCase() === 'allow' && currentAgent) {
-      rules.push({ agent: currentAgent, allow: value });
+    if (directiveLower === 'user-agent') {
+      if (lastDirectiveWasRule) {
+        currentAgents = [];
+        lastDirectiveWasRule = false;
+      }
+      currentAgents.push(value);
+    } else if (directiveLower === 'disallow' && currentAgents.length > 0) {
+      for (const agent of currentAgents) {
+        rules.push({ agent, disallow: value });
+      }
+      lastDirectiveWasRule = true;
+    } else if (directiveLower === 'allow' && currentAgents.length > 0) {
+      for (const agent of currentAgents) {
+        rules.push({ agent, allow: value });
+      }
+      lastDirectiveWasRule = true;
     }
   }
 
