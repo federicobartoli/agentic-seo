@@ -60,9 +60,13 @@ export async function check(context) {
     if (isAgentBlocked(rules, crawler.name)) {
       blockedCrawlers.push(crawler.name);
     } else {
-      // Check if explicitly allowed
+      // Any non-empty Allow rule for this agent counts as an explicit
+      // allowance (e.g. `Allow: /`, `Allow: /*.md$`, `Allow: /docs/`).
       const hasExplicitAllow = rules.some(
-        (r) => r.agent.toLowerCase() === crawler.name.toLowerCase() && r.allow === '/'
+        (r) =>
+          r.agent.toLowerCase() === crawler.name.toLowerCase() &&
+          typeof r.allow === 'string' &&
+          r.allow !== ''
       );
       if (hasExplicitAllow) {
         allowedCrawlers.push(crawler.name);
